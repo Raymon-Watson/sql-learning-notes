@@ -1,15 +1,26 @@
-# LEFT JOIN
+# SELECT Queries
 
 ## What it does
 
-A LEFT JOIN keeps every row fromt he table on the left and adds matching information from the table on the right
+This is the method for retrieving data from a SQL database, colloquially known as queries.
 
-## General sytax
+## General syntax
+
+The most basic query would be retrieving a set of columns from our chosen database:
 
 ```sql
-SELECT
-  a.column_name,
-  b.other_column
-  FROM table_a AS a
-  LEFT JOIN table b AS b
-    ON a.id = b.id;
+SELECT column, another_column, ...
+FROM mytable;
+```
+Column titles are generally descriptive, so if we had a list of movies on Netflix, then we could get the movie titles using
+
+```sql
+SELECT title FROM movies;
+```
+
+One may likewise retrieve every column from the database using (*):
+
+```sql
+SELECT *
+FROM mytable;
+```
