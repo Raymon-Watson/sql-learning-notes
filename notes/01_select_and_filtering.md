@@ -6,7 +6,7 @@ A LEFT JOIN keeps every row fromt he table on the left and adds matching informa
 
 ## General sytax
 
-'''sql
+```sql
 SELECT
   a.column_name,
   b.other_column
