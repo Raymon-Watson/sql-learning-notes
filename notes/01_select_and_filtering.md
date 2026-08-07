@@ -125,6 +125,13 @@ FROM table
 WHERE Year BETWEEN 1960 AND 2000
 ```
 
+If we wanted to retrieve a list of all directors, but without any duplicates:
+
+```sql
+SELECT DISTINCT Director
+FROM movies
+```
+
 
 ## ORDER BY
 
@@ -176,6 +183,12 @@ WHERE Year BETWEEN 1990 AND 2000
 LIMIT 10 OFFSET 5
 ```
 
+If we want the last 6 items from a list, we cannot use -6 like in python, instead we should choose ASC and then limit:
 
+```sql
+SELECT Year FROM movies
+ORDER BY Year ASC
+LIMIT 6
+```
 
 
