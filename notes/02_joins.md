@@ -53,6 +53,8 @@ LIMIT num_limit OFFSET num_offset
 
 Joining table_1 to table_2, LEFT JOIN keeps all rows from table_1 regardless of whether a match is found in table_2. Note that this will often produce NULL values, which arise when no match is found in the right table for a row in the left table.
 
+**NOTE:** The LEFT refers the the table after FROM.
+
 ### Syntax
 
 ```sql
@@ -65,10 +67,65 @@ ORDER BY column, ... ASC/DESC
 LIMIT num_limit OFFSET num_offset
 ```
 
+### Example
+
+A useful example taken from SQLbolt: We have two tables, which we give the first few rows of data for each here
+
+**Buildings**
+|Building_name|Capacity|
+|-|-|
+|1e|24|
+|1w|32|
+|2e|16|
+|2w|20|
+
+
+**Employees**
+|Role|Name|Building|Years_employed|
+|-|-|-|-|
+|Engineer|Becky A.|1e|4|
+|Engineer|Dan B.|1e|2|
+|Artist|Tylar S.|2w|2|
+|Manager|Scott K.|1e|9|
+|Manager|Daria O.|2w|6|
+
+Note that only two buildings are occupied, 1e and 2w, with building 1e only having Engineers and Managers, and 2w only Artists and Managers.
+
+They give three example questions, I will go through the answers here and provide some details on how the solution works.
+
+**1.** Find the list of all buildings that have employees.
+
+This is tricky, since we don't actually need to JOIN any of the tables, we have a complete list of occupied buildings in the Employees data:
+
+```sql
+SELECT DISTINCT Building FROM Employees;
+```
+
+
+**2.** Find the list of all buildings and their capacity.
+
+Again a bit tricky, since the Buildings data contains exactly this.
+
+```sql
+SELECT * FROM Buildings;
+```
+
+**3.** List all buildings and the distinct employee roles in each building (including empty buildings).
+
+This one requires a JOIN, since we will want to SELECT DISTINCT Buildings and Roles from Employees, but also present the Building_name from Buildings which have no matches in the Employees table. To do this, we can LEFT JOIN Buildings with Employees, which will allow us to keep unoccupied buildings.
+
+```sql
+SELECT DISTINCT Building_name, Role FROM Buildings
+LEFT JOIN Employees
+    ON Buildings.Building_name = Employees.Building;
+```
+
 
 ## RIGHT JOIN
 
 The exact same as LEFT JOIN, but essentially reversed, keeping all rows from table_2 and then matching all results from table_1, producing NULL values for rows where data exists in table_2 that cannot be matched by table_1.
+
+
 
 ### Syntax
 
