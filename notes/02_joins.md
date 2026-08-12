@@ -26,11 +26,15 @@ Note: there are a number of other relevant JOINs, but these are less common:
 
 
 
-## Inner Join
+## INNER JOIN
 
 This allows us to combine row data across two separate tables using a unique key. INNER JOIN matches rows from the first and second table which have the same key, defined through the **ON** constraint, creating a result row with the combined columns from both tables. After the tables are joined, selection may be done, as well as the other clauses that are contained in lesson 1.
 
+Since the resulting data contains only the rows that are contained in both tables, where these rows are chosen by matching chosen conditions, this will likely reduce the total amount of data present in one or both of the tables. OUTER JOINs such as LEFT and RIGHT JOIN circumvent this problem by keeping **all** data in either the left or right table, respectively, regardless of matching.
+
 Note: INNER JOIN is often simply written JOIN, as it is the most common type of join. For now, I should probably specify the full INNER JOIN, to avoid confusion.
+
+Note: The name of the matching KEY doesn't need to be the same, and often won't be when the FOREIGN KEY is contained in another table.
 
 ### Syntax
 
@@ -38,7 +42,7 @@ Note: INNER JOIN is often simply written JOIN, as it is the most common type of 
 SELECT column_1, column_2, ...
 FROM table_1
 INNER JOIN table_2
-  ON table_1.id = table_2.id
+  ON table_1.id = table_2.matching_id
 WHERE condition(s)
 ORDER BY column, ... ASC/DESC
 LIMIT num_limit OFFSET num_offset
@@ -47,11 +51,36 @@ LIMIT num_limit OFFSET num_offset
 
 ## LEFT JOIN
 
+Joining table_1 to table_2, LEFT JOIN keeps all rows from table_1 regardless of whether a match is found in table_2. Note that this will often produce NULL values, which arise when no match is found in the right table for a row in the left table.
+
+### Syntax
+
+```sql
+SELECT column_1, column_2, ...
+FROM table_1
+LEFT JOIN table_2
+  ON table_1.id = table_2.id
+WHERE condition(s)
+ORDER BY column, ... ASC/DESC
+LIMIT num_limit OFFSET num_offset
+```
 
 
 ## RIGHT JOIN
 
+The exact same as LEFT JOIN, but essentially reversed, keeping all rows from table_2 and then matching all results from table_1, producing NULL values for rows where data exists in table_2 that cannot be matched by table_1.
 
+### Syntax
+
+```sql
+SELECT column_1, column_2, ...
+FROM table_1
+RIGHT JOIN table_2
+  ON table_1.id = table_2.id
+WHERE condition(s)
+ORDER BY column, ... ASC/DESC
+LIMIT num_limit OFFSET num_offset
+```
 
 # Database Normalization
 
