@@ -125,6 +125,7 @@ LEFT JOIN Employees
 
 The exact same as LEFT JOIN, but essentially reversed, keeping all rows from table_2 and then matching all results from table_1, producing NULL values for rows where data exists in table_2 that cannot be matched by table_1.
 
+**NOTE:** Any RIGHT JOIN can technically also be written as a LEFT JOIN. The only real difference is, when using SELECT *, the order or columns will be rearranged, with the left table going before the right one.
 
 
 ### Syntax
