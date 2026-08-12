@@ -13,7 +13,7 @@ Often data is distributed across multiple tables. JOINs take rows from two table
  
 To understand how JOINs work, it is important to understand ON and PRIMARY KEYs.
 **ON** tells us what column we are using match our JOINs.
-**PRIMARY KEY** is what we typically use to JOIN tables, these must uniquely identify rows.
+**PRIMARY KEY** is what we typically use to JOIN tables, these must uniquely identify rows. Typically this is done via an incrementing integer, but they can also be strings, hashed values, or other data types, so long as it is unique. 
 More on both of these in the following sections.
 
 
@@ -28,6 +28,10 @@ Note: there are a number of other relevant JOINs, but these are less common:
 
 ## Inner Join
 
+This allows us to combine row data across two separate tables using a unique key. INNER JOIN matches rows from the first and second table which have the same key, defined through the **ON** constraint, creating a result row with the combined columns from both tables. After the tables are joined, selection may be done, as well as the other clauses that are contained in lesson 1.
+
+Note: INNER JOIN is often simply written JOIN, as it is the most common type of join. For now, I should probably specify the full INNER JOIN, to avoid confusion.
+
 ### Syntax
 
 ```sql
@@ -39,6 +43,13 @@ WHERE condition(s)
 ORDER BY column, ... ASC/DESC
 LIMIT num_limit OFFSET num_offset
 ```
+
+
+## LEFT JOIN
+
+
+
+## RIGHT JOIN
 
 
 
