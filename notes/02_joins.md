@@ -1,6 +1,50 @@
 # Joins
 
-Often data is distributed across multiple tables. Distributing data across multiple tables can be done using **normalization**. This process organizes data across tables so that we avoid unnecessary duplication and keep the data consistent. The core idea is that we **store each fact in one sensible place**, and then connect tables using keys.
+Often data is distributed across multiple tables. JOINs take rows from two tables and then decide which rows should be paired together, this is generally done using KEYs, which tell us which rows should be paired, often using an incrementing integer which uniquely identifies the paired rows. Breaking down data and distributing it across tables is done via **normalization**, which we go over at the end of this notebook.
+
+**There are three main types of JOINs:**
+- INNER JOIN: returns only rows where there is a match in both tables.
+- LEFT JOIN: Keep every row from the left table, even if there isn't a match in the right table. Missing data in the right table will typically be represented by NULL values.
+  - Ex: useful for when we want to examine every customer, whether or not they have ever bought anything.
+  - Can also be used to show customers who have never bought anything.
+- RIGHT JOIN: Keep every row from the right table, even if there isn't a match in the left table. Basically the exact inverse of LEFT JOIN.
+  - Ex: can be used to show all items for sale, even if nobody has ever bought a particular item.
+  - Obvious utility in finding items that nobody has ever bought.
+ 
+To understand how JOINs work, it is important to understand ON and PRIMARY KEYs.
+**ON** tells us what column we are using match our JOINs.
+**PRIMARY KEY** is what we typically use to JOIN tables, these must uniquely identify rows.
+More on both of these in the following sections.
+
+
+ 
+Note: there are a number of other relevant JOINs, but these are less common:
+- FULL OUTER JOIN: keeps everything from both tables, regardless of match.
+  - Obvious utility when looking for similarities and differences between two datasets, allowing us to check what is only in one dataset.
+- CROSS JOIN: Basically a Cartesian product of two tables, matches every single row in left table with every single row in the right table.
+- SELF JOIN: Essentially a typical JOIN, but here we are joining a table to itself.
+
+
+
+## Inner Join
+
+### Syntax
+
+```sql
+SELECT column_1, column_2, ...
+FROM table_1
+INNER JOIN table_2
+  ON table_1.id = table_2.id
+WHERE condition(s)
+ORDER BY column, ... ASC/DESC
+LIMIT num_limit OFFSET num_offset
+```
+
+
+
+## Database Normalization
+
+Distributing data across multiple tables can be done using **normalization**. This process organizes data across tables so that we avoid unnecessary duplication and keep the data consistent. The core idea is that we **store each fact in one sensible place**, and then connect tables using keys.
 
 As an example of this, say we had a table consisting of orders by customers:
 
