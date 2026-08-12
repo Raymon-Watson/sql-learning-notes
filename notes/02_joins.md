@@ -53,7 +53,7 @@ LIMIT num_limit OFFSET num_offset
 
 
 
-## Database Normalization
+# Database Normalization
 
 Distributing data across multiple tables can be done using **normalization**. This process organizes data across tables so that we avoid unnecessary duplication and keep the data consistent. The core idea is that we **store each fact in one sensible place**, and then connect tables using keys.
 
