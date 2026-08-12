@@ -140,6 +140,45 @@ ORDER BY column, ... ASC/DESC
 LIMIT num_limit OFFSET num_offset
 ```
 
+
+## NULLS
+
+NULL values require special attention when constructing queries, constraints, and when processing results. They indicate missing data, occurring when data is not present in a single table, but more often in OUTER JOINS, where rows from a table are included regardless of whether they contain data or not. One can sometimes use numerical or other replacements for NULL values, such as 0, but these can skew data aggregation (e.g. averaging).
+
+For cases where NULL values are unavoidable, it is important to be able to test columns for NULL values via **IS NULL** or **IS NOT NULL** constraints.
+
+### Syntax
+
+```sql
+SELECT column_1, column_2, ...
+FROM table
+WHERE column IS/IS NOT NULL
+AND/OR condition(s);
+```
+
+### Example
+
+Using the data seen in **LEFT JOIN**, we can select for employees that have not been assigned buildings by only including NULL in the Building column of Employee data:
+
+```sql
+SELECT Name, Role FROM Employees
+WHERE Building IS NULL
+```
+
+Likewise, we can select for buildings without employees. This requires joining tables, as the Employees data does not contain all buildings, only Employees and their respective buildings. To get the uninhabited buildings, we must OUTER JOIN the Buildings database, so that buildings without employees still show up, and then select for Building_name with NULL values.
+
+```sql
+SELECT Building_name FROM Buildings
+LEFT JOIN Employees
+ON Buildings.Building_name = Employees.Building
+WHERE Name IS NULL
+```
+
+Note that here, LEFT JOIN means we keep all data from the Buildings table, regardless of whether there is a match in the Employees table for the building. Then, selecting IS NULL on Employee Roles means that we are selecting only the Building_name with NULL values of employee Roles. One could likewise do this by selecting any other column from the Employees table.
+
+
+
+
 # Database Normalization
 
 Distributing data across multiple tables can be done using **normalization**. This process organizes data across tables so that we avoid unnecessary duplication and keep the data consistent. The core idea is that we **store each fact in one sensible place**, and then connect tables using keys.
