@@ -58,6 +58,52 @@ WHERE customer_id IN (
 
 ## CTE's (Common Table Expressions)
 
+A CTE allows you to define a named query result before your main query. This does a similar thing to subqueries, the benefit of this method is readability. The general method is: create a temporary result with a particular name, and then perform your query from this result. One can also easily perform multiple CTE's in one overall query in a much easier fashion. Also, since we give the CTE a name, we can utilize it more than once in the following query, making it much easier to handle.
+
+The CTE does basically the same job as the subquery, but instead of first defining the outer query and then the inner which the outer query depends on, the CTE is much more straightforward, naming an intermediate query and then using this in the main query.
+
+**Rule of thumb:** Use a subquery for short and simple logical questions. Use a CTE when the query is more complex, having several logical stages.
+
+### Syntax
+
+```sql
+WITH cte_name AS (
+  SELECT ...
+)
+SELECT ...
+FROM cte_name;
+```
+
+### Examples
+
+```sql
+WITH customer_totals AS (
+    SELECT
+        customer_id,
+        SUM(quantity * price) AS customer_spend
+    FROM orders
+    JOIN products
+        ON orders.product_id = products.product_id
+    GROUP BY customer_id
+)
+SELECT AVG(customer_spend)
+FROM customer_totals;
+```
+
+Does exactly the same job as:
+
+```sql
+SELECT AVG(customer_spend)
+FROM (
+    SELECT
+        customer_id,
+        SUM(quantity * price) AS customer_spend
+    FROM orders
+    JOIN products
+        ON orders.product_id = products.product_id
+    GROUP BY customer_id
+) AS customer_totals;
+```
 
 
 
