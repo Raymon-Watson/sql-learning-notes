@@ -65,7 +65,7 @@ The CTE does basically the same job as the subquery, but instead of first defini
 **Rule of thumb:** Use a subquery for short and simple logical questions. Use a CTE when the query is more complex, having several logical stages.
 
 ### Syntax
-
+**Single CTE:**
 ```sql
 WITH cte_name AS (
   SELECT ...
@@ -73,6 +73,23 @@ WITH cte_name AS (
 SELECT ...
 FROM cte_name;
 ```
+
+**Multiple CTE:**
+```sql
+WITH first_cte AS (
+    ...
+),
+second_cte AS (
+    ...
+),
+third_cte AS (
+    ...
+)
+
+SELECT ...
+FROM ...;
+```
+(Note: WITH only appears once, the CTE's are separated by commas.)
 
 ### Examples
 
