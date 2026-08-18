@@ -19,6 +19,8 @@
 
 -- TODO:
 
+SELECT COUNT(order_id), COUNT(DISTINCT customer_id) FROM orders;
+
 
 
 -- EXERCISE 2
@@ -26,6 +28,8 @@
 -- Use item_total.
 
 -- TODO:
+
+SELECT SUM(item_total) AS total_revenue FROM order_items;
 
 
 
@@ -38,6 +42,11 @@
 
 -- TODO:
 
+SELECT SUM(quantity),
+	ROUND(AVG(unit_price),2),
+	MIN(unit_price),
+	MAX(unit_price)
+FROM order_items;
 
 
 -- EXERCISE 4
@@ -47,12 +56,24 @@
 -- TODO:
 
 
+SELECT product_id, SUM(item_total) AS total_product_rev FROM order_items
+GROUP BY product_id
+ORDER BY total_product_rev DESC;
+
+
 
 -- EXERCISE 5
 -- Join order_items to products and calculate total revenue by category.
 -- Sort highest revenue first.
 
 -- TODO:
+SELECT * FROM order_items;
+
+SELECT products.category, SUM(order_items.item_total) cat_rev FROM order_items
+INNER JOIN products
+	ON order_items.product_id = products.product_id
+GROUP BY products.category
+ORDER BY cat_rev DESC;
 
 
 
@@ -62,6 +83,11 @@
 
 -- TODO:
 
+-- First, let's check that each order only appears once in orders:
+SELECT COUNT(order_id), COUNT(DISTINCT order_id)  FROM orders;
+
+SELECT customer_id, COUNT(order_id) AS num_orders FROM orders
+	GROUP BY customer_id;
 
 
 -- EXERCISE 7
@@ -70,6 +96,10 @@
 
 -- TODO:
 
+SELECT customer_id, COUNT(order_id) AS num_orders FROM orders
+	GROUP BY customer_id
+	HAVING COUNT(order_id) > 3;
+-- Note that we cannot use num_orders in HAVING, as it is not defined yet.
 
 
 -- EXERCISE 8
@@ -78,6 +108,8 @@
 -- Sort highest spending customers first.
 
 -- TODO:
+
+
 
 
 

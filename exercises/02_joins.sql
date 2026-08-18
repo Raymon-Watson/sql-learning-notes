@@ -23,6 +23,22 @@
 
 -- TODO:
 
+-- First, check both tables to see what to join on
+SELECT * FROM orders
+LIMIT 10;
+
+SELECT * FROM customers
+LIMIT 10;
+-- Will be INNER JOINing on customer_id
+
+SELECT orders.order_id, 
+	orders.order_date, 
+	orders.customer_id, 
+	customers.customer_name, 
+	customers.city 
+FROM orders
+INNER JOIN customers
+	ON orders.customer_id = customers.customer_id;
 
 
 -- EXERCISE 2
@@ -38,6 +54,24 @@
 
 -- TODO:
 
+-- Check what we are joining on
+SELECT * FROM order_items
+LIMIT 10;
+
+SELECT * FROM products
+LIMIT 10;
+-- Joining on product_id
+
+SELECT order_items.order_id,
+	order_items.product_id,
+	products.product_name,
+	products.category,
+	order_items.quantity,
+	order_items.unit_price,
+	order_items.item_total
+FROM order_items
+INNER JOIN products
+	ON order_items.product_id = products.product_id;
 
 
 -- EXERCISE 3
@@ -54,6 +88,25 @@
 
 -- TODO:
 
+SELECT * FROM orders
+LIMIT 10;
+
+SELECT order_items.order_id,
+	orders.order_date,
+	customers.customer_name,
+	customers.city,
+	products.product_name,
+	products.category,
+	order_items.quantity,
+	order_items.item_total
+FROM order_items
+INNER JOIN products
+	ON order_items.product_id = products.product_id
+INNER JOIN orders
+	ON order_items.order_id = orders.order_id
+INNER JOIN customers
+	ON orders.customer_id = customers.customer_id;
+
 
 
 -- EXERCISE 4
@@ -61,6 +114,11 @@
 -- Return customer_id and customer_name.
 
 -- TODO:
+
+SELECT customers.customer_id, customers.customer_name FROM customers
+LEFT JOIN orders
+	ON customers.customer_id = orders.customer_id
+WHERE order_id IS NULL;
 
 
 
@@ -76,6 +134,16 @@
 
 -- TODO:
 
+SELECT customers.customer_id,
+	customers.customer_name,
+	orders.order_id,
+	orders.order_date
+FROM customers
+LEFT JOIN orders
+	ON customers.customer_id = orders.customer_id
+ORDER BY customers.customer_name;
+	
+
 
 
 -- EXERCISE 6
@@ -90,6 +158,10 @@
 
 -- TODO:
 
+SELECT COUNT(*), COUNT(DISTINCT orders.order_id) FROM orders
+LEFT JOIN order_items
+	ON orders.order_id = order_items.order_id;
+
 
 
 -- EXERCISE 7
@@ -98,6 +170,13 @@
 -- Then compare this result with COUNT(*) from the same join.
 
 -- TODO:
+
+SELECT COUNT(DISTINCT customers.customer_id), COUNT(*) FROM customers
+INNER JOIN orders
+	ON customers.customer_id = orders.customer_id
+INNER JOIN order_items
+	ON orders.order_id = order_items.order_id;
+
 
 
 
@@ -108,6 +187,14 @@
 
 -- TODO:
 
+SELECT products.product_id, products.product_name
+FROM products
+LEFT JOIN order_items
+	ON products.product_id = order_items.product_id
+WHERE order_items.product_id IS NULL;
+
+-- Note: we use the joined key as it is more consistent when
+-- checking for missing data on a match.
 
 
 -- EXERCISE 9
@@ -116,3 +203,19 @@
 -- Return sensible identifying columns from each table.
 
 -- TODO:
+SELECT * FROM orders;
+
+SELECT customers.customer_state,
+	products.category,
+	orders.final_amount,
+	order_items.quantity
+FROM customers
+INNER JOIN orders
+	ON customers.customer_id = orders.customer_id
+INNER JOIN order_items
+	ON orders.order_id = order_items.order_id
+INNER JOIN products
+	ON order_items.product_id = products.product_id
+WHERE customers.customer_state = 'Tamil Nadu'
+	AND products.category = 'Serum';
+
