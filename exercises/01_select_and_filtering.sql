@@ -21,6 +21,9 @@
 
 -- TODO:
 
+SELECT * FROM customers
+LIMIT 10;
+
 
 
 -- EXERCISE 2
@@ -28,6 +31,8 @@
 -- Rename customer_name as name in the output.
 
 -- TODO:
+
+SELECT customer_id, customer_name AS name, city, customer_state FROM customers;
 
 
 
@@ -37,6 +42,11 @@
 
 -- TODO:
 
+SELECT * FROM customers
+	WHERE customer_state = 'Haryana' -- NOTE: needs single quote, double quote means column name.
+	ORDER BY city, customer_name;
+
+
 
 
 -- EXERCISE 4
@@ -44,6 +54,9 @@
 -- Use IN rather than several OR conditions.
 
 -- TODO:
+
+SELECT * FROM customers
+	WHERE customer_state IN ('Haryana','Tamil Nadu');
 
 
 
@@ -53,6 +66,13 @@
 
 -- TODO:
 
+-- First check all the different categories
+SELECT DISTINCT category FROM products;
+-- Then select one
+SELECT * FROM products
+	WHERE category = 'Moisturizer'
+	ORDER BY product_name ASC;
+
 
 
 -- EXERCISE 6
@@ -60,6 +80,14 @@
 -- Sort from highest to lowest unit_price.
 
 -- TODO:
+
+-- First find min/max prices
+SELECT MIN(cost_price), MAX(cost_price) FROM products;
+-- Then choose range
+SELECT * FROM products
+	WHERE cost_price BETWEEN 120 AND 250
+	ORDER BY cost_price DESC;
+	
 
 
 
@@ -69,6 +97,18 @@
 
 -- TODO:
 
+-- First, look at the structure of orders
+SELECT * FROM orders
+LIMIT 10;
+-- Then look at the order status options
+SELECT DISTINCT order_status FROM orders;
+-- Choose one: Cancelled
+SELECT order_id, customer_id, order_date, order_status FROM orders
+	WHERE order_status NOT IN ('cancelled');
+
+-- Another way of doing the same thing:
+SELECT order_id, customer_id, order_date, order_status FROM orders
+	WHERE order_status != 'cancelled';
 
 
 -- EXERCISE 8
@@ -77,12 +117,21 @@
 
 -- TODO:
 
+-- First look at products to remind ourselves of labels
+SELECT * FROM products
+LIMIT 10;
+-- Then select distinct product categories, sorting alphabetically:
+SELECT DISTINCT category FROM products
+ORDER BY category ASC;
+
 
 
 -- EXERCISE 9
 -- Find customer rows where city is NULL.
 
 -- TODO:
+SELECT * FROM customers
+WHERE city IS NULL;
 
 
 
@@ -93,6 +142,12 @@
 
 -- TODO:
 
+SELECT * FROM products
+LIMIT 10;
+
+SELECT * FROM products
+	WHERE product_name ILIKE 'serum';
+-- NOTE: ILIKE is case insensitive, LIKE is case sensitive
 
 
 -- EXERCISE 11
@@ -103,11 +158,22 @@
 -- Return product_id, unit_price, and price_band.
 
 -- TODO:
+SELECT * FROM products;
 
-
+SELECT product_id, cost_price,
+CASE
+	WHEN cost_price < 150 THEN 'Low'
+	WHEN cost_price BETWEEN 150 AND 300 THEN 'Medium'
+	ELSE 'High'
+END AS price_band
+FROM products;
 
 -- EXERCISE 12
 -- Return the 10 most expensive order-item rows.
 -- Show product_id, unit_price, quantity, and item_total.
 
 -- TODO:
+
+SELECT product_id, unit_price, quantity, item_total FROM order_items
+ORDER BY item_total DESC
+LIMIT 10;
