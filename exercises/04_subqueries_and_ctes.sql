@@ -18,6 +18,17 @@
 
 -- TODO:
 
+-- First, calculate the average price
+SELECT AVG(unit_price) FROM order_items;
+
+-- Then, use it in a subquery
+
+SELECT * FROM order_items
+WHERE unit_price > (
+SELECT AVG(unit_price) FROM order_items
+)
+ORDER BY unit_price ASC;
+
 
 
 -- EXERCISE 2
@@ -27,6 +38,10 @@
 
 -- TODO:
 
+SELECT AVG(customer_spending) FROM
+(SELECT customer_id, SUM(final_amount) AS customer_spending FROM orders
+GROUP BY customer_id) AS customer_totals;
+
 
 
 -- EXERCISE 3
@@ -35,6 +50,11 @@
 -- TODO:
 
 
+WITH customer_totals AS (
+SELECT SUM(final_amount) AS customer_spending FROM orders
+GROUP BY customer_id
+)
+SELECT AVG(customer_spending) FROM customer_totals;
 
 -- EXERCISE 4
 -- Use a CTE to calculate total spending for each customer.
@@ -45,6 +65,27 @@
 
 -- TODO:
 
+SELECT * FROM orders;
+
+WITH customer_total_spend AS (
+	SELECT customer_id, SUM(final_amount) AS total_spend
+	FROM orders
+	GROUP BY customer_id
+),
+customer_avg_spend AS (
+	SELECT AVG(total_spend) AS avg_val FROM customer_total_spend
+)
+SELECT * FROM customer_total_spend
+WHERE total_spend > ( SELECT * FROM customer_avg_spend);
+
+-- Note: can do this simpler without second CTE
+WITH customer_total_spend AS (
+	SELECT customer_id, SUM(final_amount) AS total_spend
+	FROM orders
+	GROUP BY customer_id
+)
+SELECT * FROM customer_total_spend
+WHERE total_spend > ( SELECT AVG(total_spend) FROM customer_total_spend);
 
 
 -- EXERCISE 5
@@ -53,6 +94,11 @@
 
 -- TODO:
 
+WITH order_total AS (
+	SELECT order_id, gross_amount AS order_gross_total FROM orders
+	GROUP BY order_id
+)
+SELECT AVG(order_gross_total) FROM order_total;
 
 
 -- EXERCISE 6
@@ -66,6 +112,35 @@
 -- Keep the query readable by splitting the work into logical stages.
 
 -- TODO:
+
+WITH collated_orders AS (
+	SELECT order_id,
+	SUM(item_total) AS order_total
+	FROM order_items
+	GROUP BY order_id
+),
+customer_collation AS (
+SELECT customer_id,
+SUM(order_total) AS tot_order, 
+ROUND(AVG(order_total),2) AS avg_order,
+COUNT(order_total) AS num_orders
+FROM collated_orders
+INNER JOIN orders
+	ON collated_orders.order_id = orders.order_id
+GROUP BY orders.customer_id)
+SELECT customers.customer_id,
+customers.customer_name,
+customer_collation.tot_order,
+customer_collation.avg_order,
+customer_collation.num_orders
+FROM customer_collation
+INNER JOIN customers
+	ON customer_collation.customer_id = customers.customer_id;
+
+
+
+
+
 
 
 
@@ -99,3 +174,4 @@
 --   first_order_date
 
 -- TODO:
+ 

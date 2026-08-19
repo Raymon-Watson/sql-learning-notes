@@ -109,7 +109,27 @@ SELECT customer_id, COUNT(order_id) AS num_orders FROM orders
 
 -- TODO:
 
+-- Note: we actually don't need both, since final_amount
+-- is actually contained in orders. But let's do it their
+-- way, since it will be good practice.
+-- This gives us a method for checking our answer!
 
+SELECT * FROM orders;
+
+-- Easy way first:
+SELECT orders.customer_id, SUM(orders.gross_amount) AS cust_rev FROM orders
+GROUP BY orders.customer_id
+ORDER BY cust_rev DESC;
+
+-- Note, if we used final_total, this would include shipping
+-- this is not included in order_items.
+
+-- Hard way next:
+SELECT orders.customer_id, SUM(order_items.item_total) AS cust_rev FROM orders
+INNER JOIN order_items
+	ON orders.order_id = order_items.order_id
+GROUP BY orders.customer_id
+ORDER BY cust_rev DESC;
 
 
 
@@ -119,6 +139,13 @@ SELECT customer_id, COUNT(order_id) AS num_orders FROM orders
 
 -- TODO:
 
+SELECT customers.customer_state, SUM(order_items.item_total) AS revenue FROM customers
+INNER JOIN orders
+	ON customers.customer_id = orders.customer_id
+INNER JOIN order_items
+	ON orders.order_id = order_items.order_id
+GROUP BY customers.customer_state
+ORDER BY revenue DESC;
 
 
 -- EXERCISE 10
@@ -132,6 +159,22 @@ SELECT customer_id, COUNT(order_id) AS num_orders FROM orders
 
 -- TODO:
 
+-- Check for all types of order_status:
+SELECT DISTINCT order_status FROM orders;
+SELECT * FROM orders;
+
+SELECT
+	SUM( CASE WHEN order_status = 'Delivered' THEN 1
+	ELSE 0
+	END) AS Delivered_count,
+	SUM( CASE WHEN order_status = 'Returned' THEN 1
+	ELSE 0
+	END) AS Returned_count,
+	SUM( CASE WHEN order_status = 'Cancelled' THEN 1
+	ELSE 0
+	END) AS Cancelled_count
+FROM orders;
+
 
 
 -- EXERCISE 11
@@ -141,3 +184,19 @@ SELECT customer_id, COUNT(order_id) AS num_orders FROM orders
 -- Use HAVING.
 
 -- TODO:
+-- products - category
+-- order_items - quantity
+-- order_items - item_total
+
+SELECT 
+	products.category,
+	SUM(order_items.quantity) AS units_sold,
+	SUM(order_items.item_total) AS total_revenue
+FROM order_items
+INNER JOIN products
+	ON order_items.product_id = products.product_id
+GROUP BY products.product_id
+	HAVING SUM(order_items.item_total) > 40000
+ORDER BY total_revenue ASC;
+
+
