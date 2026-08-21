@@ -115,6 +115,34 @@ Note that the avg_price column gives the same values, but now they are spread ov
 
 ### Window frame extent
 
+A window frame is the selected set of rows in the partition over which the aggregation will occur (i.e. the set of rows that are somehow related to the current row).
+
+The window frame is defined by a lower and upper bound relative to the current row. The lowest possible bound is the first row, since we cannot go back before that, and is known as UNBOUNDED PRECEDING. Likewise, the highest row is the last row, UNBOUNDED FOLLOWING.
+
+For example, if we only want to get 5 rows before the current row, then we specify the range using 5 PRECEDING.
+
+
+### Aggregation
+
+Aggregate functions can be simply used with window functions in the same way that they are used for GROUP BY, but instead we define them before. As an explanatory example, let's write some code to find the average, maximum, and minimum discount for each product:
+
+```sql
+SELECT
+    order_id,
+    product_id,
+    discount,
+    AVG(discount) OVER(PARTITION BY product_id) AS avg_discount,
+    MIN(discount) OVER(PARTITION BY product_id) AS avg_discount,
+    MAX(discount) OVER(PARTITION BY product_id) AS avg_discount
+FROM order_items;
+```
+
+### LEAD and LAG
+
+
+
+
+
 
 
 ### Examples
