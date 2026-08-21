@@ -21,6 +21,9 @@
 
 -- TODO:
 
+SELECT * FROM products
+LIMIT 10;
+
 
 
 -- EXERCISE 2
