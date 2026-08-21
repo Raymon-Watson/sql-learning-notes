@@ -1,9 +1,12 @@
 # Window functions
 
-A window functions performs calculation across multiple rows without collapsing those rows into groups (like GROUP BY does). These are commonly used for aggregates, rankings, and running totals. One uses the **OVER** clause to define the "window" of rows for the calculation.
+A window function makes a calculation across multiple rows that are related to the current row, such as
+- running totals,
+- 7-day moving averages,
+- rankings.
+This task is quite similar to what you would typically perform by using GROUP BY. However, a window functions performs calculation across multiple rows without collapsing those rows into groups (like GROUP BY does). One uses the **OVER** clause to define the "window" of rows for the calculation.
 
-
-Suppose we have
+As a explanatory example, suppose we have:
 
 | customer_id | city       | total_spent |
 |-|-|-|
@@ -27,14 +30,150 @@ where the original customers have disappeared. A window function lets us keep th
 3           | Sydney     | 800         | 600
 4           | Sydney     | 400         | 600
 
-### Syntax
+
+**Importantly**, this allows us to compare data to aggregated data, which wouldn't be possible when using GROUP BY.
+
+
+## Syntax
 
 ```sql
-SELECT column_name1, 
-       window_function(column_name2) 
-       OVER ([PARTITION BY column_name3] [ORDER BY column_name4]) AS new_column
-FROM table_name;
+SELECT
+    window_function() OVER(
+        PARTITION BY partition_expression
+        ORDER BY order_expression
+        window_frame_extend
+    ) AS window_column_alias
+FROM table_name;       
 ```
+
+To reuse the same window with several window functions, define a named window using the WINDOW keyword. This appears in the query after the HAVING section and before the ORDER BY section:
+```sql
+SELECT
+    window_function() OVER(window_name)
+FROM table_name
+[HAVING ...]
+WINDOW window_name AS (
+    PARTITION BY partition_expression
+    ORDER BY order_expression
+    window_frame_extent
+)
+[ORDER BY ...];
+```
+Note that the above does the exact same thing as the first window query, but we have defined the window in its own discrete section, making it possible to re-use it in another query.
+
+## Sub-clauses
+In the following sections, we go over some useful subclauses that we can use within the OVER clause.
+
+### ORDER BY
+ORDER BY changes the basis on which the function assigns numbers to rows. This is essential for when we want to assign sequences to rows (as without it, we would just be ranking the original columnns).
+
+Let us look at an example of ranking prices in a table from high to low:
+```sql
+SELECT product_name,
+    list_price,
+    RANK() OVER(ORDER BY list_price DESC) AS rank
+FROM products;
+```
+This will show the product name and list price, along with a rank according to the price of the item from highest to lowest (see DESC). See more details on what exactly RANK() does, below.
+
+### PARTITION BY
+We can use PARTITION BY to specify the column over which the aggregation is performed. It is useful to compare PARTITION BY and GROUP BY:
+- Just like GROUP BY, the OVER subclause splits the rows into as many partitions as there are unique values in a column,
+- GROUP BY aggregates all rows, however the result of a window function using PARTITION BY aggregates each partition independently. Importantly, without PARTITION BY the result is only a single partition.
+
+As an example, let us look first at using GROUP BY to calculate the average price of some product per year using the following:
+```sql
+SELECT year, AVG(list_price) AS avg_price
+FROM products
+GROUP BY year;
+```
+This gives:
+|year|avg_price|
+|-|-|
+|2016|1000|
+|2017|1200|
+|2018|1300|
+
+However, we often want to compare each product's price with the average price from that year. This can be done by using a window function and PARTITION BY year:
+```sql
+SELECT year,
+    product_name,
+    list_price,
+    AVG(list_price) OVER(PARTITION BY model_year) AS avg_price
+FROM products;
+```
+This will give us:
+|year|product_name|list_price|avg_price|
+|-|-|-|-|
+|2016|sunscreen|1000|1000|
+|2017|tennis shoes|1000|1200|
+|2017|tennis racket|1400|1200|
+|2018|headband|1300|1300|
+
+Note that the avg_price column gives the same values, but now they are spread over each individual item. Also note that, since there are two products in 2017, the list price of both are shown, which combine to the average price shown in the final column.
+
+
+### Window frame extent
+
+A window frame is the selected set of rows in the partition over which the aggregation will occur (i.e. the set of rows that are somehow related to the current row).
+
+The window frame is defined by a lower and upper bound relative to the current row. The lowest possible bound is the first row, since we cannot go back before that, and is known as UNBOUNDED PRECEDING. Likewise, the highest row is the last row, UNBOUNDED FOLLOWING.
+
+For example, if we only want to get 5 rows before the current row, then we specify the range using 5 PRECEDING.
+
+
+### Aggregation
+
+Aggregate functions can be simply used with window functions in the same way that they are used for GROUP BY, but instead we define them before. As an explanatory example, let's write some code to find the average, maximum, and minimum discount for each product:
+
+```sql
+SELECT
+    order_id,
+    product_id,
+    discount,
+    AVG(discount) OVER(PARTITION BY product_id) AS avg_discount,
+    MIN(discount) OVER(PARTITION BY product_id) AS avg_discount,
+    MAX(discount) OVER(PARTITION BY product_id) AS avg_discount
+FROM order_items;
+```
+
+### LEAD and LAG
+
+These locate a row relative to the current row, and are most commonly used to find the value of the previous row or the next row, such as when calculating the year-on-year increase in a metric.
+
+Both LEAD and LAG taking three arguments:
+- Expression: the name of the column from which the value is retrieved,
+- Offset: the number of rows to skip (default 1),
+- Default_value: the value returned if the value retrieved is NULL (default NULL).
+With both LEAD and LAG you must specify ORDER BY in the OVER clause.
+
+As an example, we can find the difference between this year's number of orders and the last year's number of orders:
+```sql
+WITH yearly_orders AS
+    SELECT
+        year(order_date) AS year,
+        COUNT(DISTINCT order_id) AS num_orders,
+    FROM sales.orders
+    GROUP BY year(order_date)
+)
+SELECT
+    *,
+    LAG(num_orders) OVER (ORDER BY year) AS last_year_order,
+    LAG(num_orders) OVER (ORDER BY year) - num_orders AS diff_from_last_year
+FROM yearly_orders;
+```
+Note that this is using a CTE (yearly_orders) to first calculate the year and number of orders for that year (using DISTINCT to remove duplicates), and then it is displaying all the data from this table, along with just the previous year's orders using LAG, and then using an expression to calculate the difference from last year's order. This might look like the following:
+|year|num_orders|last_year_order|diff_from_last_year|
+|-|-|-|-|
+|2016|635|null|null|
+|2017|688|635|-53|
+|2018|292|688|396|
+
+Note that we can also compare this year's orders to next year's by modifying this to use LEAD instead of LAG.
+
+
+
+
 
 ### Examples
 
@@ -167,3 +306,6 @@ This difference is easily seen in an example:
 500 → 2\
 300 → 3
 
+## Sliding Windows
+
+A particularly useful type of window function are the sliding windows, which will allow us to compare data from one row with a previous row.
