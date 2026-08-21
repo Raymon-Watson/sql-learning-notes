@@ -1,6 +1,6 @@
 # CAsE
 
-The case statement is essentially sql's equivalent of an if-then statement, evaluating to a new column in your data, which you can then query.
+The case statement is essentially sql's equivalent of an if-then statement, evaluating to a new column in your data. Note that the CASE statement is typically contained in the query statement, i.e. in the SELECT section, and we can make other queries both before and after it.
 
 
 ## Syntax
