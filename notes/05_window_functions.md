@@ -139,7 +139,37 @@ FROM order_items;
 
 ### LEAD and LAG
 
+These locate a row relative to the current row, and are most commonly used to find the value of the previous row or the next row, such as when calculating the year-on-year increase in a metric.
 
+Both LEAD and LAG taking three arguments:
+- Expression: the name of the column from which the value is retrieved,
+- Offset: the number of rows to skip (default 1),
+- Default_value: the value returned if the value retrieved is NULL (default NULL).
+With both LEAD and LAG you must specify ORDER BY in the OVER clause.
+
+As an example, we can find the difference between this year's number of orders and the last year's number of orders:
+```sql
+WITH yearly_orders AS
+    SELECT
+        year(order_date) AS year,
+        COUNT(DISTINCT order_id) AS num_orders,
+    FROM sales.orders
+    GROUP BY year(order_date)
+)
+SELECT
+    *,
+    LAG(num_orders) OVER (ORDER BY year) AS last_year_order,
+    LAG(num_orders) OVER (ORDER BY year) - num_orders AS diff_from_last_year
+FROM yearly_orders;
+```
+Note that this is using a CTE (yearly_orders) to first calculate the year and number of orders for that year (using DISTINCT to remove duplicates), and then it is displaying all the data from this table, along with just the previous year's orders using LAG, and then using an expression to calculate the difference from last year's order. This might look like the following:
+|year|num_orders|last_year_order|diff_from_last_year|
+|-|-|-|-|
+|2016|635|null|null|
+|2017|688|635|-53|
+|2018|292|688|396|
+
+Note that we can also compare this year's orders to next year's by modifying this to use LEAD instead of LAG.
 
 
 
